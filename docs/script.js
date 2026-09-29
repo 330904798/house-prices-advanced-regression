@@ -1,7 +1,7 @@
 (function () {
   const hostParts = window.location.hostname.split('.');
   const isGitHubPages = hostParts.length >= 3 && hostParts.slice(-2).join('.') === 'github.io';
-  const owner = isGitHubPages ? hostParts[0] : '330904798';
+  const owner = isGitHubPages ? hostParts[0] : 'MikeChen47';
   const repo = isGitHubPages ? window.location.pathname.split('/').filter(Boolean)[0] : 'house-prices-advanced-regression';
   const base = `https://github.com/${owner}/${repo}`;
 

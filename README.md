@@ -4,7 +4,7 @@ An end-to-end regression project for Kaggle's House Prices competition, covering
 
 > **Result:** public Log-RMSE of **0.11843**, ranking **115th of approximately 3,449 entries (top 3.3%)** at the time recorded.
 
-[View the portfolio page](https://330904798.github.io/house-prices-advanced-regression/) · [Open the notebook](notebooks/house-prices-analysis.ipynb)
+[View the portfolio page](https://mikechen47.github.io/house-prices-advanced-regression/) · [Open the notebook](notebooks/house-prices-analysis.ipynb)
 
 ![Model comparison](docs/assets/model-comparison.png)
 
