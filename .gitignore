@@ -1,0 +1,22 @@
+# Competition data
+data/*.csv
+data/data_description.txt
+
+# Generated analysis artifacts
+figures/
+outputs/
+submissions/
+
+# Notebook and Python artifacts
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local tooling
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

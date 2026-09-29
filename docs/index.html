@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Validation-driven ensemble modeling for Kaggle's House Prices competition, with a top 3.3% public leaderboard result.">
+  <title>House Prices | Mike Chen</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="House Prices project home">MC / DATA</a>
+    <nav aria-label="Main navigation">
+      <a href="#data">Data</a>
+      <a href="#approach">Approach</a>
+      <a href="#results">Results</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#limitations">Limitations</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Predictive modeling · Kaggle competition</p>
+        <h1>House price prediction built on validation, not leaderboard guesswork.</h1>
+        <p class="lede">An end-to-end regression workflow that turns messy housing data into a leakage-safe ensemble and a top 3.3% public result.</p>
+        <div class="hero-actions">
+          <a class="button button-primary repo-link" href="#">View repository</a>
+          <a class="button button-secondary notebook-link" href="#">Open notebook</a>
+        </div>
+        <p class="context">Mike Chen · Machine learning portfolio · September 2026</p>
+      </div>
+      <div class="scorecard" aria-label="Competition result">
+        <span class="score-label">Public leaderboard</span>
+        <strong>Top 3.3%</strong>
+        <div class="score-grid">
+          <div><span>Rank</span><b>115</b></div>
+          <div><span>Entries</span><b>~3,449</b></div>
+          <div><span>Score</span><b>0.11843</b></div>
+          <div><span>Metric</span><b>Log-RMSE</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section intro">
+      <p class="section-kicker">The challenge</p>
+      <h2>Predict sale prices from 79 mixed-quality property features.</h2>
+      <p>The Ames dataset combines continuous measurements, quality ratings, dates, rare categories, overlapping property measures, and missing values that sometimes mean “feature not present.” The modeling problem was as much about representing the data correctly as selecting an algorithm.</p>
+      <div class="stat-row">
+        <div><strong>1,460</strong><span>training homes</span></div>
+        <div><strong>79</strong><span>original predictors</span></div>
+        <div><strong>9</strong><span>model families compared</span></div>
+        <div><strong>5-fold</strong><span>out-of-fold validation</span></div>
+      </div>
+    </section>
+
+    <section class="section visual-section" id="data">
+      <div class="section-heading">
+        <div><p class="section-kicker">Data diagnosis</p><h2>The analysis started with meaning, not imputation defaults.</h2></div>
+        <p>Missing values, skew, rare categories, and unusual homes were reviewed before modeling so preprocessing choices reflected how the housing variables were actually defined.</p>
+      </div>
+      <div class="signal-grid">
+        <article><strong>1.883 → 0.121</strong><span>SalePrice skewness after the log transformation</span></article>
+        <article><strong>6,965 / 7,000</strong><span>Initial missing cells in train and test</span></article>
+        <article><strong>260 / 238</strong><span>Missing cells left after meaning-based rules, before fold imputation</span></article>
+        <article><strong>4 homes</strong><span>Above 4,000 sq. ft.; retained because validation favored keeping them</span></article>
+      </div>
+      <div class="visual-grid data-visuals">
+        <figure class="chart-card"><img src="assets/target-distribution.png" alt="SalePrice distribution before and after logarithmic transformation"><figcaption>The log transform reduced the target's long right tail and matched the competition metric.</figcaption></figure>
+        <figure class="chart-card"><img src="assets/key-relationships.png" alt="Relationships between sale price, overall quality, living area, garage capacity, and basement area"><figcaption>Quality, usable area, garage capacity, and basement area showed the clearest price relationships.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section" id="approach">
+      <p class="section-kicker">Analytical approach</p>
+      <h2>Every important modeling choice was tested.</h2>
+      <div class="method-grid">
+        <article><span>01</span><h3>Meaning-based cleaning</h3><p>Structural NA values became explicit absence categories or zeros; unknown values used fold-learned imputers.</p></article>
+        <article><span>02</span><h3>Leakage-safe validation</h3><p>Preprocessing, scaling, encoding, and model fitting stayed inside each training fold.</p></article>
+        <article><span>03</span><h3>Model diversity</h3><p>Linear, regularized, kernel, bagging, and boosting methods were compared under the same folds.</p></article>
+        <article><span>04</span><h3>Residual-led ensembling</h3><p>Models were combined when their errors were complementary, not simply because they scored well alone.</p></article>
+      </div>
+    </section>
+
+    <section class="section visual-section" id="results">
+      <div class="section-heading">
+        <div><p class="section-kicker">Model comparison</p><h2>Boosting led; regularization remained useful.</h2></div>
+        <p>XGBoost was the strongest individual model. LASSO remained valuable because its linear errors differed from the tree-based models.</p>
+      </div>
+      <figure class="chart-card">
+        <img src="assets/model-comparison.png" alt="Cross-validated model comparison showing XGBoost as the strongest individual model">
+        <figcaption>Five-fold out-of-fold Log-RMSE; lower is better.</figcaption>
+      </figure>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Model</th><th>OOF Log-RMSE</th><th>Role in the analysis</th></tr></thead>
+          <tbody>
+            <tr><td>Linear Regression</td><td>0.21105</td><td>Starting benchmark</td></tr>
+            <tr><td>Random Forest</td><td>0.13844</td><td>Nonlinear screen</td></tr>
+            <tr><td>RBF SVR</td><td>0.12975</td><td>Alternative nonlinear model</td></tr>
+            <tr><td>Ridge</td><td>0.12958</td><td>Regularized benchmark</td></tr>
+            <tr><td>ElasticNet</td><td>0.12492</td><td>Mixed regularization</td></tr>
+            <tr><td>LASSO</td><td>0.12465</td><td>Best linear model</td></tr>
+            <tr><td>Gradient Boosting</td><td>0.12278</td><td>Strong boosting benchmark</td></tr>
+            <tr><td>CatBoost</td><td>0.12020</td><td>Strong categorical learner</td></tr>
+            <tr class="best-row"><td>XGBoost</td><td>0.11897</td><td>Best individual model</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section result-band">
+      <div><span>Best linear model</span><strong>0.12465</strong><small>LASSO OOF Log-RMSE</small></div>
+      <div><span>Best individual model</span><strong>0.11897</strong><small>XGBoost OOF Log-RMSE</small></div>
+      <div><span>Best internal ensemble</span><strong>0.11575</strong><small>Five-fold OOF Log-RMSE</small></div>
+      <div><span>Best public submission</span><strong>0.11843</strong><small>Kaggle public score</small></div>
+    </section>
+
+    <section class="section visual-section" id="evidence">
+      <div class="section-heading">
+        <div><p class="section-kicker">Ensemble selection</p><h2>Internal validation and public evidence stayed separate.</h2></div>
+        <p>The lowest internal score used LASSO, CatBoost, and XGBoost. A LASSO, Gradient Boosting, and CatBoost blend produced the strongest public submission.</p>
+      </div>
+      <div class="visual-grid">
+        <figure class="chart-card"><img src="assets/ensemble-comparison.png" alt="Comparison of candidate ensemble validation scores"><figcaption>Explicit ensemble weights compared on shared out-of-fold predictions.</figcaption></figure>
+        <figure class="chart-card"><img src="assets/residual-review.png" alt="Predicted versus observed prices and residual diagnostic plots"><figcaption>Residual checks exposed remaining difficulty among rare, high-value homes.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section decisions">
+      <p class="section-kicker">What changed because of the analysis</p>
+      <h2>Four decisions with measurable consequences.</h2>
+      <div class="decision-list">
+        <div><b>01</b><p><strong>Transform the target.</strong> Log scaling reduced skewness from about 1.88 to 0.12 and aligned training with the competition metric.</p></div>
+        <div><b>02</b><p><strong>Keep the unusual homes.</strong> Removing houses above 4,000 square feet worsened LASSO OOF Log-RMSE from 0.12482 to 0.13214, so every training row was retained.</p></div>
+        <div><b>03</b><p><strong>Add targeted features.</strong> Quality, age, basement, and garage interactions slightly improved the LASSO direction.</p></div>
+        <div><b>04</b><p><strong>Blend different errors.</strong> Sparse linear and tree-based models improved the ensemble because their residual patterns were not identical.</p></div>
+      </div>
+    </section>
+
+    <section class="section limitations" id="limitations">
+      <div>
+        <p class="section-kicker">Limitations</p>
+        <h2>A strong result with clear boundaries.</h2>
+      </div>
+      <ul>
+        <li>One shuffled five-fold split does not capture all validation uncertainty.</li>
+        <li>Hyperparameter and ensemble-weight searches were intentionally limited.</li>
+        <li>Rare and high-end homes remain difficult because comparable examples are scarce.</li>
+        <li>Public leaderboard performance is supporting evidence, not a substitute for internal validation.</li>
+      </ul>
+    </section>
+
+    <section class="section closing">
+      <p class="section-kicker">Explore the work</p>
+      <h2>Review the full analytical trail.</h2>
+      <p>The notebook contains the reproducible workflow, model comparisons, diagnostics, and the evidence behind each major decision.</p>
+      <div class="hero-actions">
+        <a class="button button-primary notebook-link" href="#">Open notebook</a>
+        <a class="button button-secondary repo-link" href="#">View repository</a>
+      </div>
+      <p class="source-note">Sources: <a href="https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques">Kaggle House Prices</a> and <a href="https://doi.org/10.1080/10691898.2011.11889627">De Cock (2011), Ames Housing</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>House Prices · Advanced Regression Techniques</span>
+    <span>Mike Chen · 2026</span>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
